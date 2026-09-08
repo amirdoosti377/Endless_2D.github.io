@@ -15,7 +15,7 @@ export function drawArenaEffects(c,world,time,reduced){
     c.fillStyle=h.age<1.8?'#ffbd5a0c':h.age<2.7?'#ffbd5a45':'#ffbd5a0c';c.fill();
     c.strokeStyle='#ffbd5a';c.lineWidth=h.age<1.8?1:3;c.setLineDash(h.age<1.8?[6,6]:[]);c.stroke();c.setLineDash([]);
     if(h.age<1.8){c.beginPath();c.arc(h.x,h.y,h.radius+7,-Math.PI/2,-Math.PI/2+Math.PI*2*h.age/1.8);c.stroke();}
-    c.fillStyle='#ffdc95';c.font='10px ui-monospace,monospace';c.textAlign='center';c.fillText(h.age<1.8?'SURGE INCOMING':h.age<2.7?'SURGE ACTIVE':'',h.x,h.y+4);
+    c.fillStyle='#ffdc95';c.font='10px ui-monospace,monospace';c.textAlign='center';c.fillText(h.age<1.8?'برو کنار!':h.age<2.7?'اینجا خطرناکه':'',h.x,h.y+4);
   }
   if(!reduced)for(const r of world.rings){c.globalAlpha=r.life/.45;c.strokeStyle=r.color;c.lineWidth=2;c.beginPath();c.arc(r.x,r.y,r.radius+(1-r.life/.45)*44,0,Math.PI*2);c.stroke();}
   c.globalAlpha=1;
@@ -25,7 +25,7 @@ export function drawArenaEffects(c,world,time,reduced){
     if(e.elite||e.type==='boss'){c.strokeStyle=e.color;c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,e.radius+9,0,Math.PI*2);c.stroke();}
     if(e.type==='boss'&&(e.mode==='arrival'||(e.mode==='warn'&&e.attack%2===0))){
       c.strokeStyle=e.color;c.setLineDash([6,7]);c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,e.radius+25,0,Math.PI*2);c.stroke();c.setLineDash([]);
-      c.fillStyle=e.color;c.font='11px ui-monospace,monospace';c.textAlign='center';c.fillText(e.mode==='arrival'?'SENTINEL INCOMING':'RADIAL PULSE',e.x,e.y-e.radius-36);
+      c.fillStyle=e.color;c.font='11px ui-monospace,monospace';c.textAlign='center';c.fillText(e.mode==='arrival'?'نگهبان داره میاد':'موج ضربه داره میاد',e.x,e.y-e.radius-36);
     }
   }
   for(const e of world.enemies)if(e.mode==='warn'&&!(e.type==='boss'&&e.attack%2===0)){

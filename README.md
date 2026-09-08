@@ -69,3 +69,35 @@ The first Sentinel arrives at 90 seconds, with a two-second arrival warning. It 
 Extension points: `abilities.js` contains ability definitions, eligibility and effects; `boss.js` contains boss scheduling entry and attack behavior. `World` owns the pending selection queue, run stats and damage calculations; UI renders the offers without changing simulation rules.
 
 This release has automated simulation tests, but has not received browser visual QA or a human difficulty-balancing playtest.
+
+## Version 1.3 — Pressure, playful feedback, and PWA
+
+Scouts, runners and weavers move roughly 10% faster. Spawns are denser and every third wave can include an extra enemy. Spawn intervals never go below 0.16 seconds. Boss encounters reduce regular spawn pressure; boss defeats give eight seconds of reduced spawning. This is tuning, not a guarantee of difficulty balance; human playtesting is still needed.
+
+Persian comic hit reactions appear in randomized side bands with short transform/opacity animation. Game-over and boss-defeat reactions use distinct phrases. Disable Fun reactions in the menu; preference persists locally. Boss defeat is a milestone win; the endless run continues.
+
+### Install and offline use
+
+Upload **all files**, including `manifest.webmanifest`, `sw.js`, `icons/` and the new modules. GitHub Pages HTTPS and relative manifest/scope paths support the repository subdirectory. If using the supplied Actions workflow, its stage step now copies PWA files too.
+
+The service worker precaches the complete application. Open online first, wait for Offline files ready, then reopen the app to use the cached build. Browsers may evict cached data; installation does not guarantee permanent storage. Version 1.4 saves the complete active run locally; see the section below.
+
+On browsers providing the install prompt, an Install App button appears. On iPhone use the browser Share menu → Add to Home Screen. Availability depends on browser/platform.
+
+### Updates
+
+Change `VERSION` in `sw.js` with every release that changes assets. Keep the worker filename stable. New assets install into a separate versioned cache; failed install deletes that incomplete cache. A waiting update is offered only at the menu or game-over, never during a run. Other game tabs must be closed before explicit activation. Unrelated apps' caches are never deleted. No external resources, push subscriptions or telemetry.
+
+Service-worker lifecycle reference: https://web.dev/articles/service-worker-lifecycle
+
+Validation includes simulation tests and mocked service-worker offline, scope and lifecycle tests. Actual device installation, offline browser operation, and animation performance have not been verified in a browser.
+
+## نسخهٔ ۱.۴ — ادامهٔ دور، نقشه و فارسی
+
+دور زنده توی `localStorage` ذخیره می‌شه: جون، لول، امتیاز، توانایی‌ها، گزینه‌های بازِ ارتقا، دشمن‌ها و وضعیت حمله‌هاشون، باس، تیرها، آیتم‌ها، زمان‌بندی‌ها و وضعیت مولد اعداد تصادفی. ذخیره هر ثانیه و موقع توقف، مخفی‌شدن صفحه، انتخاب ارتقا و ضربه‌خوردن انجام می‌شه. با مرگ، همون لحظه ذخیره پاک می‌شه. برگشتن به بازی به کلیک روی ادامه نیاز داره؛ زمان آفلاین شبیه‌سازی نمی‌شه.
+
+ذخیره مخصوص همین مرورگر و آدرسه، ابری نیست. پاک‌کردن داده‌های مرورگر ذخیره رو از بین می‌بره. قطع ناگهانی پردازش ممکنه تا حدود یک ثانیهٔ آخر رو از دست بده. خطای فضای ذخیره در منو نشون داده می‌شه. بازکردن دور تو تب دیگه، تب قبلی رو متوقف می‌کنه؛ آخرین ذخیره مبنای ادامه‌ست.
+
+آب موج‌دار، درخت‌های متحرک و ماشین‌های پارک‌شده بر اساس مختصات ثابت ساخته می‌شن و بعد از ادامه جابه‌جا نمی‌شن. این نسخه عناصر محیطی رو به‌عنوان منظره رندر می‌کنه؛ سد راه و مانع فیزیکی نیستن. رابط، توانایی‌ها، پیام‌ها و راهنمای نصب فارسی و راست‌به‌چپن؛ تیکه‌ها از منو قابل خاموش‌کردنن.
+
+آفلاین بعد از اولین بازدید آنلاین و آماده‌شدن کش قابل استفاده‌ست؛ برای ادامه هم به اینترنت نیاز نداری. همهٔ فایل‌ها رو جایگزین کن، به‌خصوص `sw.js` و ماژول‌های تازه. تست‌های خودکار ذخیره، ادامه، حذف بعد از مرگ و حالت آفلاین شبیه‌سازی‌شده وجود دارن؛ تست بصری و دستگاه واقعی هنوز انجام نشده.

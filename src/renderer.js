@@ -1,3 +1,4 @@
+import { drawTerrain } from './terrain.js';
 import { drawAtmosphere, drawArenaEffects } from './environment.js';
 export class Renderer {
   constructor(canvas) {
@@ -30,6 +31,7 @@ export class Renderer {
     const cx = w / 2 - this.camera.x + Math.sin(ambient * 71) * shake, cy = h / 2 - this.camera.y + Math.cos(ambient * 83) * shake;
     c.save(); c.translate(cx, cy);
     const left = -cx, top = -cy;
+    drawTerrain(c,left,top,w,h,ambient,p,this.reduced);
     c.lineWidth = 1; c.strokeStyle = '#78b5d10c'; c.beginPath();
     for (let x = Math.floor(left / 60) * 60; x < left + w; x += 60) { c.moveTo(x, top); c.lineTo(x, top + h); }
     for (let y = Math.floor(top / 60) * 60; y < top + h; y += 60) { c.moveTo(left, y); c.lineTo(left + w, y); } c.stroke();

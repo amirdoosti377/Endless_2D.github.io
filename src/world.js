@@ -4,9 +4,10 @@ import { moveEnemy } from './behaviors.js';
 import { CONFIG, ENEMIES } from './config.js';
 import { distance, normalize, segmentHit } from './math.js';
 export class World {
-  constructor(random = Math.random) { this.random = random; this.reset(); }
+  constructor(random = null) { this.random = random || (()=>{this.rngState=(Math.imul(this.rngState,1664525)+1013904223)>>>0;return this.rngState/4294967296;}); this.reset(); }
   reset() {
-    this.stats={damage:1,interval:.4,projectiles:1,maxHp:100,armor:0,speed:1,magnet:145,regen:0};this.abilities={};this.pendingChoices=0;this.offers=[];this.bossTier=0;this.nextBoss=90;this.regenTimer=0;
+    this.rngState=(Date.now()^Math.floor(Math.random()*4294967296))>>>0;
+    this.stats={damage:1,interval:.4,projectiles:1,maxHp:100,armor:0,speed:1,magnet:145,regen:0};this.abilities={};this.pendingChoices=0;this.offers=[];this.bossTier=0;this.nextBoss=90;this.regenTimer=0;this.reliefUntil=0;
     this.player = { x: 0, y: 0, radius: CONFIG.playerRadius, hp: 100, invincible: 0, angle: -Math.PI / 2 };
     this.hostile = []; this.rings = []; this.trail = []; this.hazards = []; this.hazardTimer = 14; this.enemies = []; this.bullets = []; this.pickups = []; this.particles = []; this.events = [];
     this.time = 0; this.wave = 1; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.nextXP = 8;
@@ -57,7 +58,8 @@ export class World {
     p.x += vector.x * CONFIG.playerSpeed * this.stats.speed * dt; p.y += vector.y * CONFIG.playerSpeed * this.stats.speed * dt;
     p.invincible = Math.max(0, p.invincible - dt); this.shake = Math.max(0, this.shake - dt * 22);
     this.spawnTimer -= dt;
-    if (this.spawnTimer <= 0) { this.spawn(view); this.spawnTimer = Math.max(.14, .74 - this.wave * .043); }
+    if (this.spawnTimer <= 0) { this.spawn(view); this.spawnTimer = Math.max(.16, .64 - this.wave * .037)*(this.time<this.reliefUntil?2:this.enemies.some(e=>e.type==='boss')?1.5:1);
+      if(this.wave>=3&&this.wave%3===0&&this.random()<.22&&this.time>=this.reliefUntil&&!this.enemies.some(e=>e.type==='boss'))this.spawn(view); }
     this.shotTimer -= dt;
     let target = null, closest = CONFIG.weaponRange;
     for (const e of this.enemies) { const d = distance(p, e); if (d < closest && e.hp > 0) { closest = d; target = e; } }
@@ -80,7 +82,7 @@ export class World {
         if (e.hp <= 0) {
           this.score += e.score * this.wave; this.kills++; this.burst(e.x, e.y, e.color, 16);
           this.events.push({ type: 'kill' });
-          if(e.type==='boss'){this.events.push({type:'bossDefeated'});this.hostile=[];this.nextBoss=this.time+100;}
+          if(e.type==='boss'){this.events.push({type:'bossDefeated'});this.reliefUntil=this.time+8;this.hostile=[];this.nextBoss=this.time+100;}
           this.rings.push({x:e.x,y:e.y,radius:e.radius,color:e.color,life:.45});if(this.rings.length>45)this.rings.shift();
           this.pickups.push({ x: e.x, y: e.y, type: e.type!=='boss' && this.random() < .09 ? 'health' : 'xp', value: e.xp, life: 35 });
           if (this.pickups.length > CONFIG.maxPickups) this.pickups.shift();
