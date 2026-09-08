@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { World } from '../src/world.js';
+import { ENEMIES, CONFIG } from '../src/config.js';
+import { segmentHit } from '../src/math.js';
+const enemy = (x = 0, y = 0) => ({ ...ENEMIES.scout, x, y, hp: 2, maxHp: 2, hit: 0 });
+test('diagonal movement is normalized', () => { const w = new World(); w.update(1, { x: 1, y: 1 }); assert.ok(Math.abs(Math.hypot(w.player.x, w.player.y) - CONFIG.playerSpeed) < .01); });
+test('projectile collision catches fast crossing', () => { assert.equal(segmentHit(-100, 0, 100, 0, { x: 0, y: 0 }, 10), true); assert.equal(segmentHit(-100, 30, 100, 30, { x: 0, y: 0 }, 10), false); });
+test('contact damage has invulnerability window', () => { const w = new World(); w.enemies = [enemy(), enemy()]; w.update(1 / 60, { x: 0, y: 0 }); assert.equal(w.player.hp, 88); w.update(1 / 60, { x: 0, y: 0 }); assert.equal(w.player.hp, 88); });
+test('auto-fire eliminates target and awards score once', () => { const w = new World(() => .5); w.spawnTimer = 100; w.enemies = [enemy(100, 0)]; for (let i = 0; i < 55; i++) w.update(1 / 60, { x: 0, y: 0 }); assert.equal(w.kills, 1); assert.equal(w.score, 20); });
+test('collecting energy upgrades weapon and healing is capped', () => { const w = new World(); w.xp = 7; w.pickups = [{ x: 0, y: 0, type: 'xp', value: 1, life: 10 }]; w.update(.01, { x: 0, y: 0 }); assert.equal(w.level, 2); assert.equal(w.xp, 0); assert.equal(w.player.hp, 100); });
+test('death freezes simulation and reset restores a clean run', () => { const w = new World(); w.player.hp = 1; w.enemies = [enemy()]; w.update(.01, { x: 0, y: 0 }); assert.equal(w.dead, true); const t = w.time; w.update(1, { x: 1, y: 0 }); assert.equal(w.time, t); w.reset(); assert.equal(w.dead, false); assert.equal(w.player.hp, 100); assert.equal(w.score, 0); assert.equal(w.enemies.length, 0); });
+test('long simulation remains finite and entity counts are bounded', () => { const w = new World(() => .6); for (let i = 0; i < 36000; i++) { w.player.invincible = 1; w.update(1 / 60, { x: Math.sin(i / 100), y: Math.cos(i / 100) }); } assert.ok(w.wave >= 25); assert.ok(w.enemies.length <= CONFIG.maxEnemies); assert.ok(w.particles.length <= CONFIG.maxParticles); assert.ok(w.pickups.length <= CONFIG.maxPickups); assert.ok(Number.isFinite(w.player.x)); });
