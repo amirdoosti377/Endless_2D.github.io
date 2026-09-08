@@ -7,7 +7,7 @@ An endless, top-down neon survival game. Move your pilot through an infinite are
 - **WASD / arrow keys:** move. On touchscreens, drag anywhere on the arena for a floating analog joystick.
 - **P / Escape / pause button:** pause or resume. Switching tabs automatically pauses.
 - **Sound button:** opt in to synthesized sound effects.
-- Collect violet energy to automatically improve fire rate, damage, and multishot. Green pickups restore shield integrity.
+- Collect violet energy to level up, then choose one of three abilities. Green pickups restore shield integrity.
 - Survive increasingly difficult waves; score is enemy value multiplied by wave number. The personal best is saved on this browser only.
 
 ## Run locally
@@ -57,3 +57,15 @@ Six enemy archetypes: scout, runner, tank, weaving drone, charging drone, and ra
 Rendering interpolates fixed-step positions, eases the camera and pilot rotation, and adds parallax dust, rotating beacons, trails, and expanding impact rings. Gameplay and attack timers freeze on pause. Reduced-motion mode suppresses decorative motion and transitions while preserving readable attack warnings.
 
 `src/behaviors.js` owns enemy movement and attack strategies. `src/environment.js` owns decorative layers and visual warnings; hazard rules remain in `World`.
+
+## Version 1.2 — Run-based abilities and Sentinel fights
+
+Every level grants exactly one selection from three distinct ability offers. The simulation pauses until all pending selections are resolved. Choose using mouse, touch, or keys 1/2/3. Multiple levels gained together queue multiple choices. Abilities stack for the current run only; restart clears them. No permanent combat upgrades. The personal best remains browser-local.
+
+Eight abilities: projectile damage, firing rate, multishot, maximum shield, armor, movement speed, energy attraction, and regeneration. Capped abilities disappear from offers. Automatic weapon scaling has been removed: your choices define the build.
+
+The first Sentinel arrives at 90 seconds, with a two-second arrival warning. It alternates radial projectiles and a telegraphed directional dash. Below half health it attacks more frequently. Defeating it clears hostile projectiles and drops 22 energy; the next, stronger Sentinel arrives 100 seconds later. Only one boss can be alive. Elite enemies start in wave 5 with doubled health and increased contact damage, marked by an extra ring.
+
+Extension points: `abilities.js` contains ability definitions, eligibility and effects; `boss.js` contains boss scheduling entry and attack behavior. `World` owns the pending selection queue, run stats and damage calculations; UI renders the offers without changing simulation rules.
+
+This release has automated simulation tests, but has not received browser visual QA or a human difficulty-balancing playtest.

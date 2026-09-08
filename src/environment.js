@@ -21,7 +21,14 @@ export function drawArenaEffects(c,world,time,reduced){
   c.globalAlpha=1;
   if(!reduced)for(const s of world.trail){c.globalAlpha=s.life*.5;c.fillStyle='#5ef4d5';c.beginPath();c.arc(s.x,s.y,3+s.life*12,0,Math.PI*2);c.fill();}c.globalAlpha=1;
   // Each enemy has a locked, visible attack direction during its windup.
-  for(const e of world.enemies)if(e.mode==='warn'){
+  for(const e of world.enemies){
+    if(e.elite||e.type==='boss'){c.strokeStyle=e.color;c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,e.radius+9,0,Math.PI*2);c.stroke();}
+    if(e.type==='boss'&&(e.mode==='arrival'||(e.mode==='warn'&&e.attack%2===0))){
+      c.strokeStyle=e.color;c.setLineDash([6,7]);c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,e.radius+25,0,Math.PI*2);c.stroke();c.setLineDash([]);
+      c.fillStyle=e.color;c.font='11px ui-monospace,monospace';c.textAlign='center';c.fillText(e.mode==='arrival'?'SENTINEL INCOMING':'RADIAL PULSE',e.x,e.y-e.radius-36);
+    }
+  }
+  for(const e of world.enemies)if(e.mode==='warn'&&!(e.type==='boss'&&e.attack%2===0)){
     c.strokeStyle=e.color;c.globalAlpha=.6;c.lineWidth=e.type==='charger'?3:1;c.setLineDash([8,8]);c.lineDashOffset=-t*20;
     c.beginPath();c.moveTo(e.x,e.y);c.lineTo(e.x+e.dx*(e.type==='charger'?280:450),e.y+e.dy*(e.type==='charger'?280:450));c.stroke();c.setLineDash([]);c.lineDashOffset=0;c.globalAlpha=1;
     c.beginPath();c.arc(e.x,e.y,e.radius+7,0,Math.PI*2);c.stroke();
