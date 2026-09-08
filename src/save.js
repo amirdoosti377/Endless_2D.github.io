@@ -1,13 +1,17 @@
+import { CONFIG } from './config.js';
+import { moveSolid } from './physics.js';
 import { ABILITIES } from './abilities.js';
 export const SAVE_KEY='endless2d.run.v1';
 const OWNER_KEY=SAVE_KEY+'.owner';
 const fields=['stats','abilities','pendingChoices','offers','bossTier','nextBoss','regenTimer','reliefUntil','player','hostile','rings','trail','hazards','hazardTimer','enemies','bullets','pickups','particles','time','wave','score','kills','level','xp','nextXP','spawnTimer','shotTimer','dead','shake','rngState'];
 const limits={enemies:171,hostile:100,bullets:200,pickups:240,particles:420,rings:45,trail:100,hazards:20};
-export function snapshot(w){return {version:1,world:{...Object.fromEntries(fields.map(k=>[k,w[k]])),spawnSectors:w.spawnSectors||[]}};}
+export function snapshot(w){return {version:1,world:{...Object.fromEntries(fields.map(k=>[k,w[k]])),spawnSectors:w.spawnSectors||[],fxState:w.fxState,shieldTimer:w.shieldTimer,pulseTimer:w.pulseTimer}};}
 export function validate(data){
  if(data?.version!==1||!data.world)return false;const w=data.world;
  function safe(v,depth=0){if(depth>8)return false;if(typeof v==='number')return Number.isFinite(v)&&Math.abs(v)<1e12;if(v===null||typeof v==='boolean'||typeof v==='string')return true;if(Array.isArray(v))return v.every(x=>safe(x,depth+1));if(v&&typeof v==='object')return Object.entries(v).every(([k,x])=>!['__proto__','constructor','prototype'].includes(k)&&safe(x,depth+1));return false;}
  if(w.spawnSectors!==undefined&&(!Array.isArray(w.spawnSectors)||w.spawnSectors.length>16||new Set(w.spawnSectors).size!==w.spawnSectors.length||w.spawnSectors.some(n=>!Number.isInteger(n)||n<0||n>15)))return false;
+ for(const key of ['fxState','shieldTimer','pulseTimer'])if(w[key]!==undefined&&!Number.isFinite(w[key]))return false;
+ for(const [key,min,max]of [['range',210,435],['crit',0,.4],['shield',0,5],['pulse',0,5]])if(w.stats?.[key]!==undefined&&!(w.stats[key]>=min&&w.stats[key]<=max))return false;
  if(!safe(w)||fields.some(k=>!(k in w))||w.dead!==false||!(w.player?.hp>0)||w.player.hp>w.stats?.maxHp)return false;
  for(const [key,max]of Object.entries(limits))if(!Array.isArray(w[key])||w[key].length>max||w[key].some(e=>!Number.isFinite(e.x)||!Number.isFinite(e.y)))return false;
  if(!Number.isFinite(w.player.x)||!Number.isFinite(w.player.y)||!Number.isFinite(w.player.angle))return false;
@@ -24,5 +28,9 @@ export class RunSave{
  owns(){try{return this.claimed&&this.storage.getItem(OWNER_KEY)===this.owner;}catch{return false;}}
  read(){try{const raw=this.storage.getItem(SAVE_KEY);if(!raw)return null;if(raw.length>2000000)throw Error();const data=JSON.parse(raw);if(!validate(data))throw Error();return data.world;}catch{this.onError('invalid');return null;}}
  write(world){if(!this.owns())return false;try{if(world.dead){this.storage.removeItem(SAVE_KEY);return true;}this.storage.setItem(SAVE_KEY,JSON.stringify(snapshot(world)));return true;}catch{this.onError();return false;}}
- restore(world,data){for(const k of fields)world[k]=structuredClone(data[k]);world.spawnSectors=structuredClone(data.spawnSectors||[]);world.events=[];}
+ restore(world,data){for(const k of fields)world[k]=structuredClone(data[k]);world.spawnSectors=structuredClone(data.spawnSectors||[]);
+  world.stats={range:CONFIG.weaponRange,crit:0,shield:0,pulse:0,...world.stats};
+  world.fxState=data.fxState??data.rngState;world.shieldTimer=data.shieldTimer??0;world.pulseTimer=data.pulseTimer??6;
+  if(data.stats.range===undefined){moveSolid(world.player,0,0,world.terrain);for(const e of world.enemies)moveSolid(e,0,0,world.terrain);world.player.px=world.player.x;world.player.py=world.player.y;}
+  world.events=[];}
 }

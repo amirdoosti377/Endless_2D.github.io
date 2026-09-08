@@ -1,5 +1,6 @@
 export class AudioFX {
-  constructor(){this.enabled=false;this.context=null;this.active=0;this.last={};}
+  constructor(){this.enabled=false;this.context=null;this.active=0;this.last={};this.noise=null;}
+  resume(){if(this.enabled&&this.context?.state!=='running')this.context?.resume().catch(()=>{});}
   toggle(){
     try{this.context??=new(window.AudioContext||window.webkitAudioContext)();this.context.resume().catch(()=>{});this.enabled=!this.enabled;}catch{this.enabled=false;}
     return this.enabled;
@@ -7,7 +8,7 @@ export class AudioFX {
   play(type,size=16){
     if(!this.enabled||this.context?.state!=='running')return;
     const ctx=this.context,t=ctx.currentTime;
-    const pitches={shoot:540,kill:size>20?95:170,hurt:70,level:740,heal:620,hazard:260,boss:90,bossDefeated:880,dead:110};
+    const pitches={shoot:540,kill:size>20?95:170,hurt:70,level:740,heal:620,hazard:260,boss:90,bossDefeated:880,dead:110,impact:320,shield:410,pulse:125,realmWarning:240,realm:55,upgrade:920};
     if(!pitches[type]||t-(this.last[type]??-10)<(type==='shoot'?.065:type==='kill'?.045:.12)||this.active>=12)return;
     this.last[type]=t;
     const tone=(frequency,duration,volume,wave='sine',ratio=.4)=>{
@@ -18,12 +19,13 @@ export class AudioFX {
       o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+duration+.02);o.onended=()=>{this.active--;o.disconnect();g.disconnect();};
     };
     const f=pitches[type]*(.93+Math.random()*.14);
-    tone(f,type==='dead'?.5:.18,type==='shoot'?.017:.045,type==='hurt'?'triangle':'sine',['level','heal','bossDefeated'].includes(type)?1.6:.4);
-    if(['kill','hurt','boss','dead'].includes(type)){
+    tone(f,type==='dead'?.5:.18,type==='shoot'?.017:.045,type==='hurt'?'triangle':'sine',['level','heal','bossDefeated','upgrade','shield'].includes(type)?1.6:.4);
+    if(['kill','hurt','boss','dead','pulse','realm'].includes(type)){
       tone(f*.51,.25,.035,'triangle');
       if(this.active>=12)return;
-      const length=.17,buffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*length),ctx.sampleRate),data=buffer.getChannelData(0);
-      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);
+      const length=.17;
+      if(!this.noise){this.noise=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*length),ctx.sampleRate);const data=this.noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);}
+      const buffer=this.noise;
       const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();this.active++;
       source.buffer=buffer;filter.type='lowpass';filter.frequency.value=type==='hurt'?650:1900;
       gain.gain.setValueAtTime(.07,t);gain.gain.exponentialRampToValueAtTime(.001,t+length);

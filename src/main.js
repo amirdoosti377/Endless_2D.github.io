@@ -1,3 +1,4 @@
+import { REALMS, realmIndex } from './realms.js';
 import { RunSave } from './save.js';
 import { Banter, levelLine } from './banter.js';
 import { setupPWA } from './pwa.js';
@@ -13,7 +14,7 @@ let state = 'menu', accumulator = 0, last = performance.now(), noticeUntil = 0, 
 try { best = Number(localStorage.getItem('endless2d.best')) || 0; } catch { /* Private browsing can disable storage. */ }
 let storage;try{storage=localStorage;}catch{storage={getItem:()=>null,setItem:()=>{throw Error();}};}
 const saves=new RunSave(storage,kind=>{$('save-status').textContent=kind==='invalid'?'ذخیرهٔ قبلی قابل خوندن نیست؛ یه دور تازه بزن.':'ذخیره نشد؛ فضای مرورگر رو بررسی کن.';});
-let savedRun=saves.read(),lastSave=0;
+let savedRun=saves.read(),lastSave=0,saveScheduled=false;
 if(savedRun){$('play').textContent='ادامه بده، هنوز زنده‌ای!';$('panel-copy').textContent='دورت ذخیره شده؛ هر وقت آماده‌ای برگرد تو میدون.';}
 function saveRun(){if(['playing','paused','upgrade'].includes(state)&&saves.owns())saves.write(world);}
 const banter=new Banter();
@@ -23,10 +24,10 @@ $('fun-mode').checked=banter.enabled;$('fun-mode').addEventListener('change',e=>
 $('best').textContent = best.toLocaleString('fa-IR');
 const formatTime = seconds => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 function notify(message) { $('notice').textContent = message; noticeUntil = performance.now() + 2400; }
-function start() { banter.clear(); $('ability-options').hidden=true; $('play').hidden=false; savedRun=saves.read();saves.claim(); if(savedRun){saves.restore(world,savedRun);savedRun=null;}else world.reset(); renderer.lastTime=undefined; state = 'playing'; accumulator = 0; input.clear(); $('overlay').hidden = true; $('pause').disabled = false; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'توقف بازی'); notify('برگشتی تو میدون؛ وای نستا!');if(world.pendingChoices)showChoices();saveRun(); }
+function start() { sound.resume();banter.clear(); $('ability-options').hidden=true; $('play').hidden=false; savedRun=saves.read();saves.claim(); if(savedRun){saves.restore(world,savedRun);savedRun=null;}else world.reset(); renderer.lastTime=undefined; state = 'playing'; accumulator = 0; input.clear(); $('overlay').hidden = true; $('pause').disabled = false; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'توقف بازی'); notify('برگشتی تو میدون؛ وای نستا!');if(world.pendingChoices)showChoices();saveRun(); }
 function pause() {
   if (state !== 'playing' && state !== 'paused') return;
-  if (state === 'paused') { state = 'playing'; $('overlay').hidden = true; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'توقف بازی'); accumulator = 0; return; }
+  if (state === 'paused') { sound.resume();state = 'playing'; $('overlay').hidden = true; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'توقف بازی'); accumulator = 0; return; }
   state = 'paused'; input.clear();saveRun(); $('overlay').hidden = false; $('panel-tag').textContent = 'یه نفس بگیر'; $('panel-title').textContent = 'وایسا ببینم!'; $('panel-copy').textContent = 'عجله نکن؛ همه همون‌جا منتظرتن.'; $('results').hidden = true; $('play').textContent = 'بزن بریم، ادامه بده'; $('pause').textContent = '▶'; $('pause').setAttribute('aria-label', 'ادامهٔ بازی');
 }
 let lastLevelLine='';
@@ -42,7 +43,7 @@ function showChoices(){
     const rank=document.createElement('small');rank.textContent=`تا الان: ${world.abilities[id]||0} · یه رتبه بیشتر`;
     button.append(title,description,rank);button.addEventListener('click',()=>{
       if(state!=='upgrade'||!world.chooseAbility(id))return;
-      saveRun();if(world.pendingChoices){showChoices();return;}
+      sound.resume();sound.play('upgrade');saveRun();if(world.pendingChoices){showChoices();return;}
       options.hidden=true;$('play').hidden=false;$('overlay').hidden=true;$('pause').disabled=false;input.clear();state='playing';accumulator=0;notify(a.name.toUpperCase()+' رو گرفتی!');
     });options.append(button);
   });options.firstElementChild?.focus();
@@ -71,7 +72,11 @@ function end() { $('ability-options').hidden=true;$('play').hidden=false;
 function hud() {
   const boss=world.enemies.find(e=>e.type==='boss'&&e.hp>0);$('boss-hud').hidden=!boss;
   if(boss){$('boss-name').textContent=`نگهبان ${boss.tier} · ${boss.mode==='arrival'?'داره میاد':boss.hp<boss.maxHp*.5?'عصبانی شده':'تو میدونه'}`;$('boss-bar').style.width=`${boss.hp/boss.maxHp*100}%`;}
-  $('build-summary').textContent=Object.entries(world.abilities).map(([id,rank])=>`${ABILITIES.find(a=>a.id===id).name} ×${rank}`).join(' · ');
+  if(hud.lastBuild!==world.level||hud.lastBuildCount!==world.pendingChoices){
+    hud.lastBuild=world.level;hud.lastBuildCount=world.pendingChoices;
+    $('build-summary').textContent=Object.entries(world.abilities).map(([id,rank])=>`${ABILITIES.find(a=>a.id===id).name} ×${rank}`).join(' · ');
+  }
+  $('combat-status').textContent=`برد ${world.stats.range} · ${REALMS[realmIndex(world.time)].name}`+(world.stats.shield?world.shieldTimer<=0?' · سپر آماده':` · سپر ${Math.ceil(world.shieldTimer)}ث`:'');
 
   $('score').textContent = String(world.score).padStart(6, '0'); $('time').textContent = formatTime(world.time); $('wave').textContent = String(world.wave).padStart(2, '0');
   $('health').textContent = `${world.player.hp} / ${world.stats.maxHp}`; $('health-bar').style.width = `${world.player.hp/world.stats.maxHp*100}%`; $('health-bar').style.background = world.player.hp < 30 ? '#ff627f' : '#5ef4d5';
@@ -80,23 +85,30 @@ function hud() {
 // Fixed simulation step keeps combat consistent across refresh rates; hidden tabs pause.
 function frame(now) {
   const dt = Math.min((now - last) / 1000, .1); last = now;
+  renderer.measure(dt,state==='playing');world.particleBudget=renderer.low?90:240;
   if (state === 'playing') {
     accumulator += dt;
     while (accumulator >= CONFIG.step && state === 'playing') {
       world.update(CONFIG.step, input.vector(), renderer); accumulator -= CONFIG.step;
       for (const event of world.events.splice(0)) {
         sound.play(event.type,event.size);
+        if(event.type==='realmWarning')notify('زمین داره عوض می‌شه؛ آماده باش!');
+        if(event.type==='realm')notify(REALMS[realmIndex(world.time)].name+'؛ اینجا کجاست دیگه؟');
         if (event.type === 'hazard') notify('اون جای زرده خطرناکه؛ برو کنار!');
         if (event.type === 'wave') notify(`موج ${String(event.value).padStart(2, '0')} · شلوغ شد، حواست باشه!`);
         if (event.type === 'level' && state==='playing') showChoices();
         if(event.type==='boss')notify('گنده‌شون اومد! حواست به حمله‌هاش باشه');
         if(event.type==='bossDefeated'){notify('باس رو جمع کردی؛ انرژیش رو بردار');banter.show('win');}
-        if(event.type==='hurt'&&!world.dead){banter.show('hit');saveRun();}
+        if(event.type==='hurt'&&!world.dead)banter.show('hit');
         if (event.type === 'dead'){end();banter.show('dead');}
       }
     }
   }
-  if(now-lastSave>1000){saveRun();lastSave=now;}
+  if(now-lastSave>1000&&!saveScheduled){
+    lastSave=now;saveScheduled=true;
+    const task=()=>{saveScheduled=false;saveRun();};
+    if(window.requestIdleCallback)requestIdleCallback(task,{timeout:500});else setTimeout(task,0);
+  }
   if (now > noticeUntil) $('notice').textContent = '';
   renderer.draw(world, state === 'playing' ? world.time : state === 'menu' ? now / 1000 : world.time, state === 'playing' ? accumulator / CONFIG.step : 1, dt); if(now-(frame.lastHUD||0)>80){hud();refreshPWA();frame.lastHUD=now;} requestAnimationFrame(frame);
 }

@@ -1,115 +1,65 @@
-# Endless_2D
+# Endless_2D — نسخهٔ ۱.۶
 
-An endless, top-down neon survival game. Move your pilot through an infinite arena while auto-targeting pulse weapons fend off geometric drones.
+بازی بقای دوبعدی، فارسی و بی‌پایان با شلیک خودکار، کنترل لمسی، ۹ نوع دشمن، باس و ۱۲ قابلیت قابل انتخاب. بدون وابستگی، ابزار build یا سرویس خارجی.
 
-## Play
+## تغییرات این نسخه
 
-- **WASD / arrow keys:** move. On touchscreens, drag anywhere on the arena for a floating analog joystick.
-- **P / Escape / pause button:** pause or resume. Switching tabs automatically pauses.
-- **Sound button:** opt in to synthesized sound effects.
-- Collect violet energy to level up, then choose one of three abilities. Green pickups restore shield integrity.
-- Survive increasingly difficult waves; score is enemy value multiplied by wave number. The personal best is saved on this browser only.
+- پردازش برخورد تیر و دشمن با شبکهٔ مکانی؛ بررسی دقیق فقط برای دشمن‌های نزدیک مسیر تیر انجام می‌شود.
+- حذف کپی‌کردن موجودیت‌ها در هر فریم، حذف رسم اجسام خارج صفحه، کش تصویر اجسام ثابت و نورهای نرم، و رسم گروهی تیرها.
+- کیفیت خودکار: در افت فریم پایدار، وضوح Canvas و افکت‌های تزئینی کاهش می‌یابد؛ برخورد، دشمن‌ها و هشدار حمله تغییری نمی‌کنند. بازی به تنظیم کاهش حرکت سیستم هم احترام می‌گذارد.
+- درخت‌ها و ماشین‌ها مانع حرکت بازیکن، دشمن و تیر هستند. حرکت کنار مانع می‌لغزد؛ دشمن‌ها یک مسیر کوتاه کناری امتحان می‌کنند. این رفتار مسیریابی کامل نیست. آب همچنان قابل عبور است.
+- برد پایه از ۶۲۰ به **۲۱۰** واحد کاهش یافته؛ ارتقای «دورتر بزن» هر بار ۴۵ واحد اضافه می‌کند، تا سقف ۴۳۵. هدف باید داخل محدودهٔ دید صفحه باشد و پشت مانع نباشد. طول مسیر تیر هم محدود است.
+- سه قابلیت دیگر: ضربهٔ بحرانی، سپر شارژشونده و پالس دفاعی. مجموع قابلیت‌ها ۱۲ تاست و با شروع دور جدید پاک می‌شوند.
+- هر ۷۵ ثانیه محیط بین بیشهٔ نئون، درهٔ بلورها و کارخونهٔ خاموش تغییر می‌کند. سه ثانیه قبل هشدار می‌آید؛ تغییر با لرزش کوتاه، نور، رنگ و شکل تازهٔ اجسام و دشمن‌ها همراه است. هندسهٔ موانع و مشخصات دشمن‌ها هنگام تغییر ثابت می‌ماند.
+- صداهای تازه برای سپر، پالس، تغییر محیط، انتخاب ارتقا و برخورد به مانع. نمونهٔ نویز مشترک است و حداکثر ۱۲ منبع صدا هم‌زمان پخش می‌شود.
 
-## Run locally
-
-No dependencies or build step. Serve the repository over HTTP (ES modules cannot be opened reliably with `file://`):
+## اجرا و کنترل
 
 ```sh
 python3 -m http.server 8080
 ```
 
-Then open http://localhost:8080. With Node 22+, run `npm test` for simulation tests. `npm start` is a convenience alias for the Python server.
+صفحهٔ محلی را در پورت ۸۰۸۰ باز کنید. پروژه باید با HTTP سرو شود، نه بازکردن مستقیم فایل HTML.
 
-## GitHub Pages
+- حرکت: WASD یا کلیدهای جهت؛ روی گوشی انگشت را روی میدان بکشید.
+- توقف: P، Escape یا دکمهٔ توقف. خروج از صفحه بازی را متوقف می‌کند.
+- شلیک خودکار؛ هنگام ارتقا یکی از سه گزینه را لمس کنید یا ۱، ۲، ۳ بزنید.
+- صدا ابتدا خاموش است و با دکمهٔ صدا فعال می‌شود.
 
-One-time setup: **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-Then open **Actions → Test and deploy game → Run workflow** (or push a commit to main). Successful runs test and publish only `index.html`, `style.css`, and `src/`.
+## ذخیره، آفلاین و انتشار
 
-Expected URL after a successful deployment: https://amirdoosti377.github.io/Endless_2D.github.io/
+ذخیره‌های نسخهٔ ۱.۴ و ۱.۵ پشتیبانی می‌شوند. قابلیت‌های جدید برای آن‌ها با مقدار پایه شروع می‌شوند؛ اگر موقعیت قدیمی داخل مانع باشد، به نزدیک‌ترین لبهٔ همان مانع منتقل می‌شود. محیط از زمان ذخیره‌شده تعیین می‌شود. با مرگ ذخیره پاک می‌شود؛ رکورد باقی می‌ماند.
 
-Official setup guide: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+ذخیرهٔ دوره‌ای حدود هر ثانیه در فرصت آزاد مرورگر زمان‌بندی می‌شود. توقف، خروج از صفحه، انتخاب ارتقا و مرگ ذخیرهٔ فوری دارند. بستن ناگهانی برنامه ممکن است حدود ۱ تا ۲ ثانیهٔ آخر را از دست بدهد. داده‌ها مخصوص همان مرورگر و همان آدرس هستند.
 
-## Architecture
+همهٔ فایل‌های ZIP را در ریشهٔ ریپوی قبلی جایگزین کنید، از جمله `src`، `icons`، `manifest.webmanifest` و `sw.js`. آدرس انتشار را ثابت نگه دارید تا ذخیرهٔ مرورگر حفظ شود. نسخهٔ کش سرویس‌ورکر **1.6.0** است؛ تغییرات در منو یا پایان دور قابل دریافت‌اند. دور زنده وسط بازی رفرش نمی‌شود.
 
-| Module | Responsibility |
+بعد از بارگذاری آنلاین و آماده‌شدن فایل‌های آفلاین، بازی و ادامهٔ دور بدون اینترنت کار می‌کند. این نسخه به‌صورت خودکار روی سایت منتشر نشده است.
+
+## ساختار
+
+| ماژول | مسئولیت |
 | --- | --- |
-| `src/config.js` | Game balance, enemy archetypes, resource limits |
-| `src/world.js` | DOM-free simulation, spawning, targeting, damage, loot, progression; injectable RNG |
-| `src/math.js` | Normalized movement and swept projectile collision |
-| `src/renderer.js` | Canvas rendering, camera, world grid, glow, particles, damage feedback |
-| `src/input.js` | Keyboard and pointer input with a normalized movement vector |
-| `src/audio.js` | Optional Web Audio synthesis; independent of game rules |
-| `src/main.js` | Application states, fixed-step loop, UI, local score storage |
-| `tests/world.test.js` | Combat, movement, progression, reset, and long-run bounds |
+| `world.js` | شبیه‌سازی با گام ثابت، دشمن‌ها، هدف‌گیری، پیشرفت و رویدادها |
+| `spatial.js` | شبکهٔ مکانی و استفادهٔ دوباره از آرایه‌ها |
+| `terrain-data.js` | هندسهٔ ثابت و مشترک برای تصویر و برخورد، کش محدود |
+| `physics.js` | برخورد دایره و مستطیل چرخیده، حرکت و زمان اولین برخورد تیر |
+| `terrain.js` | ساخت و کش تصویر اجسام؛ حداکثر ۲۴ تصویر |
+| `renderer.js` | رندر بدون تغییر جهان، دوربین، نور و کیفیت خودکار |
+| `realms.js` | سه محیط و زمان‌بندی تغییرشان |
+| `abilities.js` | تعریف، سقف و انتخاب ۱۲ قابلیت |
+| `behaviors.js` / `boss.js` | رفتار و هشدار حملهٔ دشمن‌ها و باس |
+| `audio.js` / `environment.js` | صدا و افکت، مستقل از قوانین بازی |
+| `save.js` | ذخیره، سازگاری نسخه‌های قبلی و مالکیت تب فعال |
+| `main.js` / `input.js` | چرخهٔ اجرا، رابط، کیبورد و لمس |
 
-The renderer reads world state; gameplay does not depend on canvas or the DOM. The world emits events consumed by UI/audio. The simulation runs at 60 fixed steps per second, caps accumulated frame time, bounds entities, and expires offscreen objects. Canvas uses a maximum 2× pixel ratio. Reduced-motion preference disables camera shake and damage-screen flashes.
+## اعتبارسنجی
 
-### Extending
+```sh
+node --test
+node scripts/benchmark.mjs
+```
 
-Add enemy stats in `ENEMIES` and update the selection in `World.spawn`. Add distinct behaviors in the enemy update stage. Extend the weapon targeting/projectile stage for new weapons; move it into a dedicated system module as the catalogue grows. Add progression events for upgrade UI. Replace `Renderer` without rewriting simulation if moving to WebGL later.
+تست‌ها برخورد، جلوگیری از عبور سریع از مانع، برد موبایل، ترتیب اولین برخورد تیر، سپر، پالس، تغییر محیط، مهاجرت ذخیره و کش آفلاین را پوشش می‌دهند. سنجش عملکرد فقط زمان شبیه‌سازی در Node را اندازه می‌گیرد؛ معادل FPS یا تأیید سرعت روی موبایل نیست. جزئیات در `PERFORMANCE.md` است.
 
-This version uses Canvas 2D, HTML, CSS and native JavaScript modules. No Three.js, WebGPU, external assets, CDN, telemetry, backend, or server leaderboard. Saves are device-local and not cheat-resistant. Browser visual/device QA has not yet been performed; automated tests exercise the simulation.
-
-## Version 1.1
-
-Six enemy archetypes: scout, runner, tank, weaving drone, charging drone, and ranged gunner. Chargers lock their direction during a 0.8-second warning; gunners aim for 0.85 seconds before firing a dodgeable projectile. Waves now advance every 22 seconds with modestly denser spawns. From wave three, amber energy zones warn for 1.8 seconds before activating.
-
-Rendering interpolates fixed-step positions, eases the camera and pilot rotation, and adds parallax dust, rotating beacons, trails, and expanding impact rings. Gameplay and attack timers freeze on pause. Reduced-motion mode suppresses decorative motion and transitions while preserving readable attack warnings.
-
-`src/behaviors.js` owns enemy movement and attack strategies. `src/environment.js` owns decorative layers and visual warnings; hazard rules remain in `World`.
-
-## Version 1.2 — Run-based abilities and Sentinel fights
-
-Every level grants exactly one selection from three distinct ability offers. The simulation pauses until all pending selections are resolved. Choose using mouse, touch, or keys 1/2/3. Multiple levels gained together queue multiple choices. Abilities stack for the current run only; restart clears them. No permanent combat upgrades. The personal best remains browser-local.
-
-Eight abilities: projectile damage, firing rate, multishot, maximum shield, armor, movement speed, energy attraction, and regeneration. Capped abilities disappear from offers. Automatic weapon scaling has been removed: your choices define the build.
-
-The first Sentinel arrives at 90 seconds, with a two-second arrival warning. It alternates radial projectiles and a telegraphed directional dash. Below half health it attacks more frequently. Defeating it clears hostile projectiles and drops 22 energy; the next, stronger Sentinel arrives 100 seconds later. Only one boss can be alive. Elite enemies start in wave 5 with doubled health and increased contact damage, marked by an extra ring.
-
-Extension points: `abilities.js` contains ability definitions, eligibility and effects; `boss.js` contains boss scheduling entry and attack behavior. `World` owns the pending selection queue, run stats and damage calculations; UI renders the offers without changing simulation rules.
-
-This release has automated simulation tests, but has not received browser visual QA or a human difficulty-balancing playtest.
-
-## Version 1.3 — Pressure, playful feedback, and PWA
-
-Scouts, runners and weavers move roughly 10% faster. Spawns are denser and every third wave can include an extra enemy. Spawn intervals never go below 0.16 seconds. Boss encounters reduce regular spawn pressure; boss defeats give eight seconds of reduced spawning. This is tuning, not a guarantee of difficulty balance; human playtesting is still needed.
-
-Persian comic hit reactions appear in randomized side bands with short transform/opacity animation. Game-over and boss-defeat reactions use distinct phrases. Disable Fun reactions in the menu; preference persists locally. Boss defeat is a milestone win; the endless run continues.
-
-### Install and offline use
-
-Upload **all files**, including `manifest.webmanifest`, `sw.js`, `icons/` and the new modules. GitHub Pages HTTPS and relative manifest/scope paths support the repository subdirectory. If using the supplied Actions workflow, its stage step now copies PWA files too.
-
-The service worker precaches the complete application. Open online first, wait for Offline files ready, then reopen the app to use the cached build. Browsers may evict cached data; installation does not guarantee permanent storage. Version 1.4 saves the complete active run locally; see the section below.
-
-On browsers providing the install prompt, an Install App button appears. On iPhone use the browser Share menu → Add to Home Screen. Availability depends on browser/platform.
-
-### Updates
-
-Change `VERSION` in `sw.js` with every release that changes assets. Keep the worker filename stable. New assets install into a separate versioned cache; failed install deletes that incomplete cache. A waiting update is offered only at the menu or game-over, never during a run. Other game tabs must be closed before explicit activation. Unrelated apps' caches are never deleted. No external resources, push subscriptions or telemetry.
-
-Service-worker lifecycle reference: https://web.dev/articles/service-worker-lifecycle
-
-Validation includes simulation tests and mocked service-worker offline, scope and lifecycle tests. Actual device installation, offline browser operation, and animation performance have not been verified in a browser.
-
-## نسخهٔ ۱.۴ — ادامهٔ دور، نقشه و فارسی
-
-دور زنده توی `localStorage` ذخیره می‌شه: جون، لول، امتیاز، توانایی‌ها، گزینه‌های بازِ ارتقا، دشمن‌ها و وضعیت حمله‌هاشون، باس، تیرها، آیتم‌ها، زمان‌بندی‌ها و وضعیت مولد اعداد تصادفی. ذخیره هر ثانیه و موقع توقف، مخفی‌شدن صفحه، انتخاب ارتقا و ضربه‌خوردن انجام می‌شه. با مرگ، همون لحظه ذخیره پاک می‌شه. برگشتن به بازی به کلیک روی ادامه نیاز داره؛ زمان آفلاین شبیه‌سازی نمی‌شه.
-
-ذخیره مخصوص همین مرورگر و آدرسه، ابری نیست. پاک‌کردن داده‌های مرورگر ذخیره رو از بین می‌بره. قطع ناگهانی پردازش ممکنه تا حدود یک ثانیهٔ آخر رو از دست بده. خطای فضای ذخیره در منو نشون داده می‌شه. بازکردن دور تو تب دیگه، تب قبلی رو متوقف می‌کنه؛ آخرین ذخیره مبنای ادامه‌ست.
-
-آب موج‌دار، درخت‌های متحرک و ماشین‌های پارک‌شده بر اساس مختصات ثابت ساخته می‌شن و بعد از ادامه جابه‌جا نمی‌شن. این نسخه عناصر محیطی رو به‌عنوان منظره رندر می‌کنه؛ سد راه و مانع فیزیکی نیستن. رابط، توانایی‌ها، پیام‌ها و راهنمای نصب فارسی و راست‌به‌چپن؛ تیکه‌ها از منو قابل خاموش‌کردنن.
-
-آفلاین بعد از اولین بازدید آنلاین و آماده‌شدن کش قابل استفاده‌ست؛ برای ادامه هم به اینترنت نیاز نداری. همهٔ فایل‌ها رو جایگزین کن، به‌خصوص `sw.js` و ماژول‌های تازه. تست‌های خودکار ذخیره، ادامه، حذف بعد از مرگ و حالت آفلاین شبیه‌سازی‌شده وجود دارن؛ تست بصری و دستگاه واقعی هنوز انجام نشده.
-
-## نسخهٔ ۱.۵
-- ورود دشمن‌ها از ۱۶ بخش تصادفی لبهٔ صفحه، خارج از دید بازیکن.
-- سه دشمن جدید از موج پنجم: دورزن، رهگیر و بمب‌گذار؛ مجموع ۹ نوع عادی و باس.
-- شکل‌های متمایز، حلقهٔ گردان، باله، زره و لولهٔ شلیک.
-- کنترل‌های لمسی بزرگ‌تر و چیدمان عمودی و افقی موبایل؛ منو قابل اسکرول.
-- صدای چندلایهٔ آسیب و انفجار با تنوع تصادفی و محدودیت هم‌زمانی.
-- تیکه‌های بیشتر و عنوان تصادفی ارتقا؛ قابل خاموش‌کردن در تنظیمات.
-- سازگاری با ذخیره‌های ۱.۴ و کش آفلاین نسخهٔ جدید.
-
-اعتبارسنجی: ۲۵ تست Node پاس شد. تست بصری و شنیداری و نصب روی گوشی واقعی انجام نشده؛ مرورگر محلی در محیط اجرا نصب نبود.
-برای انتشار، همهٔ فایل‌ها به‌خصوص sw.js را جایگزین کنید؛ این خروجی خودکار منتشر نشده است.
+تست بصری مرورگر، شنیدن صداها و نصب روی گوشی واقعی انجام نشده است.

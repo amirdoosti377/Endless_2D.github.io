@@ -1,5 +1,5 @@
-const VERSION="1.5.0";
-const ASSETS=["./", "./index.html", "./style.css", "./manifest.webmanifest", "./src/save.js", "./src/terrain.js", "./src/abilities.js", "./src/audio.js", "./src/banter.js", "./src/behaviors.js", "./src/boss.js", "./src/config.js", "./src/environment.js", "./src/input.js", "./src/main.js", "./src/math.js", "./src/pwa.js", "./src/renderer.js", "./src/world.js", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png"];
+const VERSION="1.6.0";
+const ASSETS=["./src/spatial.js", "./src/physics.js", "./src/terrain-data.js", "./src/realms.js", "./", "./index.html", "./style.css", "./manifest.webmanifest", "./src/save.js", "./src/terrain.js", "./src/abilities.js", "./src/audio.js", "./src/banter.js", "./src/behaviors.js", "./src/boss.js", "./src/config.js", "./src/environment.js", "./src/input.js", "./src/main.js", "./src/math.js", "./src/pwa.js", "./src/renderer.js", "./src/world.js", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png"];
 
 const PREFIX='endless2d:'+self.registration.scope+':';
 const CACHE=PREFIX+VERSION;

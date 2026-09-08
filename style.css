@@ -45,3 +45,6 @@ html[lang="fa"] body{font-family:Tahoma,Arial,sans-serif}html[lang="fa"] h1{lett
  html[lang="fa"] .overlay h1{font-size:24px!important;margin:4px 0}.panel p{margin:4px 0 8px!important}
  footer,#build-summary{display:none}
 }
+#combat-status{position:absolute;bottom:68px;left:34px;right:34px;color:#b6d7d2;font-size:11px;pointer-events:none;text-align:right}
+@media(max-width:650px){#combat-status{top:calc(110px + env(safe-area-inset-top));bottom:auto;left:12px;right:12px;font-size:10px}#boss-hud{top:calc(137px + env(safe-area-inset-top))}#notice{top:calc(174px + env(safe-area-inset-top))}}
+@media(max-height:500px) and (orientation:landscape){#combat-status{top:auto;bottom:max(10px,env(safe-area-inset-bottom));left:12px;right:12px}#boss-hud{top:58px}#notice{top:105px}}

@@ -1,4 +1,4 @@
-export const CONFIG = Object.freeze({ step: 1 / 60, waveSeconds: 22, maxEnemies: 170, maxParticles: 420, maxPickups: 240, playerSpeed: 235, playerRadius: 15, weaponRange: 620 });
+export const CONFIG = Object.freeze({ step: 1 / 60, waveSeconds: 22, maxEnemies: 170, maxParticles: 420, maxPickups: 240, playerSpeed: 235, playerRadius: 15, weaponRange: 210 });
 export const ENEMIES = Object.freeze({
   scout: { radius: 13, speed: 92, hp: 2, damage: 12, score: 20, xp: 1, color: '#ff627f', sides: 3 },
   runner: { radius: 10, speed: 170, hp: 1, damage: 9, score: 30, xp: 1, color: '#ffb45e', sides: 4 },

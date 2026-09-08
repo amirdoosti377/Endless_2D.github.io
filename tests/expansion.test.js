@@ -10,7 +10,7 @@ test('spawn covers all sixteen perimeter sectors safely on phone and landscape',
  const w=new World();const sectors=new Set();
  for(let i=0;i<16;i++){w.spawn(view);const e=w.enemies.at(-1),hw=view.width/2+100,hh=view.height/2+100;let side,t;
  if(e.y===-hh){side=0;t=(e.x/hw+1)/2;}else if(e.x===hw){side=1;t=(e.y/hh+1)/2;}else if(e.y===hh){side=2;t=(e.x/hw+1)/2;}else{side=3;t=(e.y/hh+1)/2;}
- sectors.add(side*4+Math.min(3,Math.floor(t*4)));assert.ok(Math.abs(e.x)>view.width/2||Math.abs(e.y)>view.height/2);}
+ sectors.add(e.spawnSector);assert.ok(Math.abs(e.x)>view.width/2||Math.abs(e.y)>view.height/2);}
  assert.equal(sectors.size,16);}
 });
 test('new enemies move finitely and bomber warning is delayed and bounded',()=>{

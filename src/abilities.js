@@ -1,4 +1,8 @@
 export const ABILITIES = [
+ {id:'range',name:'دورتر بزن',description:'برد تیرت ۴۵ واحد بیشتر می‌شه؛ تا سقف ۴۳۵. فقط دشمن داخل صفحه هدف می‌گیره.',eligible:w=>w.stats.range<435,apply:w=>w.stats.range=Math.min(435,w.stats.range+45)},
+ {id:'critical',name:'تیر شانسی',description:'۱۰٪ شانس بیشتر برای ضربهٔ دوبرابر؛ تا سقف ۴۰٪.',eligible:w=>w.stats.crit<.39,apply:w=>w.stats.crit=Math.min(.4,w.stats.crit+.1)},
+ {id:'shield',name:'سپر نجات',description:'یه ضربه رو می‌گیره و شارژ می‌شه؛ هر رتبه شارژ رو سریع‌تر می‌کنه، از ۱۴ تا ۶ ثانیه.',eligible:w=>w.stats.shield<5,apply:w=>w.stats.shield++},
+ {id:'pulse',name:'پالس دفاعی',description:'هر ۶ ثانیه به دشمن‌های نزدیک ۲ آسیب می‌زنه؛ هر رتبه ۲ تا بیشتر، تا رتبهٔ ۵.',eligible:w=>w.stats.pulse<5,apply:w=>w.stats.pulse++},
  {id:'power',name:'تیر پرزور',description:'قدرت هر تیرت یکی بیشتر می‌شه.',apply:w=>w.stats.damage++},
  {id:'rapid',name:'تندتند بزن',description:'۱۲٪ زودتر شلیک می‌کنی؛ کفش یه تیر تو ۰٫۱ ثانیه‌ست.',apply:w=>w.stats.interval=Math.max(.1,w.stats.interval*.88)},
  {id:'multi',name:'تیر پخش‌کن',description:'هر بار یه تیر بیشتر؛ تا سقف ۵ تا.',eligible:w=>w.stats.projectiles<5,apply:w=>w.stats.projectiles++},
