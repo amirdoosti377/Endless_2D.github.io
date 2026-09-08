@@ -25,7 +25,7 @@ Then open http://localhost:8080. With Node 22+, run `npm test` for simulation te
 One-time setup: **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 Then open **Actions → Test and deploy game → Run workflow** (or push a commit to main). Successful runs test and publish only `index.html`, `style.css`, and `src/`.
 
-Expected URL after a successful deployment: https://amirdoosti377.github.io/Endless_2D/
+Expected URL after a successful deployment: https://amirdoosti377.github.io/Endless_2D.github.io/
 
 Official setup guide: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
 
@@ -49,3 +49,11 @@ The renderer reads world state; gameplay does not depend on canvas or the DOM. T
 Add enemy stats in `ENEMIES` and update the selection in `World.spawn`. Add distinct behaviors in the enemy update stage. Extend the weapon targeting/projectile stage for new weapons; move it into a dedicated system module as the catalogue grows. Add progression events for upgrade UI. Replace `Renderer` without rewriting simulation if moving to WebGL later.
 
 This version uses Canvas 2D, HTML, CSS and native JavaScript modules. No Three.js, WebGPU, external assets, CDN, telemetry, backend, or server leaderboard. Saves are device-local and not cheat-resistant. Browser visual/device QA has not yet been performed; automated tests exercise the simulation.
+
+## Version 1.1
+
+Six enemy archetypes: scout, runner, tank, weaving drone, charging drone, and ranged gunner. Chargers lock their direction during a 0.8-second warning; gunners aim for 0.85 seconds before firing a dodgeable projectile. Waves now advance every 22 seconds with modestly denser spawns. From wave three, amber energy zones warn for 1.8 seconds before activating.
+
+Rendering interpolates fixed-step positions, eases the camera and pilot rotation, and adds parallax dust, rotating beacons, trails, and expanding impact rings. Gameplay and attack timers freeze on pause. Reduced-motion mode suppresses decorative motion and transitions while preserving readable attack warnings.
+
+`src/behaviors.js` owns enemy movement and attack strategies. `src/environment.js` owns decorative layers and visual warnings; hazard rules remain in `World`.

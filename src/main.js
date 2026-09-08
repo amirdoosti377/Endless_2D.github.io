@@ -10,7 +10,7 @@ try { best = Number(localStorage.getItem('endless2d.best')) || 0; } catch { /* P
 $('best').textContent = best.toLocaleString();
 const formatTime = seconds => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 function notify(message) { $('notice').textContent = message; noticeUntil = performance.now() + 2400; }
-function start() { world.reset(); state = 'playing'; accumulator = 0; input.clear(); $('overlay').hidden = true; $('pause').disabled = false; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'Pause game'); notify('WAVE 01 · KEEP MOVING'); }
+function start() { world.reset(); renderer.lastTime=undefined; state = 'playing'; accumulator = 0; input.clear(); $('overlay').hidden = true; $('pause').disabled = false; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'Pause game'); notify('WAVE 01 · KEEP MOVING'); }
 function pause() {
   if (state !== 'playing' && state !== 'paused') return;
   if (state === 'paused') { state = 'playing'; $('overlay').hidden = true; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'Pause game'); accumulator = 0; return; }
@@ -44,6 +44,7 @@ function frame(now) {
       world.update(CONFIG.step, input.vector(), renderer); accumulator -= CONFIG.step;
       for (const event of world.events.splice(0)) {
         sound.play(event.type);
+        if (event.type === 'hazard') notify('ENERGY SURGE · AVOID THE AMBER ZONE');
         if (event.type === 'wave') notify(`WAVE ${String(event.value).padStart(2, '0')} · SWARM INTENSIFYING`);
         if (event.type === 'level') notify(`WEAPON LEVEL ${event.value} · POWER INCREASED`);
         if (event.type === 'dead') end();
@@ -51,6 +52,6 @@ function frame(now) {
     }
   }
   if (now > noticeUntil) $('notice').textContent = '';
-  renderer.draw(world, now / 1000); hud(); requestAnimationFrame(frame);
+  renderer.draw(world, state === 'playing' ? world.time : state === 'menu' ? now / 1000 : world.time, state === 'playing' ? accumulator / CONFIG.step : 1, dt); hud(); requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

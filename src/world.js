@@ -1,10 +1,11 @@
+import { moveEnemy } from './behaviors.js';
 import { CONFIG, ENEMIES } from './config.js';
 import { distance, normalize, segmentHit } from './math.js';
 export class World {
   constructor(random = Math.random) { this.random = random; this.reset(); }
   reset() {
     this.player = { x: 0, y: 0, radius: CONFIG.playerRadius, hp: 100, invincible: 0, angle: -Math.PI / 2 };
-    this.enemies = []; this.bullets = []; this.pickups = []; this.particles = []; this.events = [];
+    this.hostile = []; this.rings = []; this.trail = []; this.hazards = []; this.hazardTimer = 14; this.enemies = []; this.bullets = []; this.pickups = []; this.particles = []; this.events = [];
     this.time = 0; this.wave = 1; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.nextXP = 8;
     this.spawnTimer = .7; this.shotTimer = 0; this.dead = false; this.shake = 0;
   }
@@ -17,15 +18,22 @@ export class World {
   spawn(view) {
     if (this.enemies.length >= CONFIG.maxEnemies) return;
     const roll = this.random();
-    const type = this.wave > 2 && roll < .18 ? 'tank' : this.wave > 1 && roll < .45 ? 'runner' : 'scout';
+    const pool = this.wave >= 4 ? ['scout','runner','weaver','charger','gunner','tank'] : this.wave >= 3 ? ['scout','runner','weaver','charger','tank'] : this.wave >= 2 ? ['scout','runner','weaver'] : ['scout','scout','runner'];
+    const type = pool[Math.min(pool.length-1,Math.floor(roll*pool.length))];
     const spec = ENEMIES[type], a = this.random() * Math.PI * 2;
     const radius = Math.hypot(view.width / 2, view.height / 2) + 70;
     const hp = spec.hp + Math.floor((this.wave - 1) * .55);
     this.enemies.push({ ...spec, type, x: this.player.x + Math.cos(a) * radius, y: this.player.y + Math.sin(a) * radius, hp, maxHp: hp, hit: 0, seed: this.random() * 10 });
   }
+  damage(amount) {
+    const p=this.player;if(this.dead||p.invincible>0)return;
+    p.hp=Math.max(0,p.hp-amount);p.invincible=.9;this.shake=5;this.burst(p.x,p.y,'#f5fbff',18);this.events.push({type:'hurt'});
+    if(!p.hp){this.dead=true;this.events.push({type:'dead'});}
+  }
   update(dt, movement, view = { width: 1200, height: 800 }) {
     if (this.dead) return;
     const p = this.player;
+    for(const e of [p,...this.enemies,...this.bullets,...this.hostile]) {e.px=e.x;e.py=e.y;}
     this.time += dt;
     const wave = 1 + Math.floor(this.time / CONFIG.waveSeconds);
     if (wave !== this.wave) { this.wave = wave; this.events.push({ type: 'wave', value: wave }); }
@@ -33,7 +41,7 @@ export class World {
     p.x += vector.x * CONFIG.playerSpeed * dt; p.y += vector.y * CONFIG.playerSpeed * dt;
     p.invincible = Math.max(0, p.invincible - dt); this.shake = Math.max(0, this.shake - dt * 22);
     this.spawnTimer -= dt;
-    if (this.spawnTimer <= 0) { this.spawn(view); this.spawnTimer = Math.max(.12, .85 - this.wave * .048); }
+    if (this.spawnTimer <= 0) { this.spawn(view); this.spawnTimer = Math.max(.14, .74 - this.wave * .043); }
     this.shotTimer -= dt;
     let target = null, closest = CONFIG.weaponRange;
     for (const e of this.enemies) { const d = distance(p, e); if (d < closest && e.hp > 0) { closest = d; target = e; } }
@@ -56,6 +64,7 @@ export class World {
         if (e.hp <= 0) {
           this.score += e.score * this.wave; this.kills++; this.burst(e.x, e.y, e.color, 16);
           this.events.push({ type: 'kill' });
+          this.rings.push({x:e.x,y:e.y,radius:e.radius,color:e.color,life:.45});if(this.rings.length>45)this.rings.shift();
           this.pickups.push({ x: e.x, y: e.y, type: this.random() < .09 ? 'health' : 'xp', value: e.xp, life: 35 });
           if (this.pickups.length > CONFIG.maxPickups) this.pickups.shift();
         }
@@ -65,15 +74,27 @@ export class World {
     for (const e of this.enemies) {
       if (e.hp <= 0) continue;
       e.hit = Math.max(0, e.hit - dt);
-      const direction = normalize(p.x - e.x, p.y - e.y), speed = e.speed * Math.min(1.8, 1 + this.wave * .025);
-      e.x += direction.x * speed * dt; e.y += direction.y * speed * dt;
-      if (distance(p, e) < p.radius + e.radius && p.invincible <= 0) {
-        p.hp = Math.max(0, p.hp - e.damage); p.invincible = 1; this.shake = 7;
-        e.x -= direction.x * 60; e.y -= direction.y * 60;
-        this.burst(p.x, p.y, '#f5fbff', 18); this.events.push({ type: 'hurt' });
-        if (!p.hp) { this.dead = true; this.events.push({ type: 'dead' }); break; }
+      moveEnemy(e,this,dt);
+      if(distance(p,e)<p.radius+e.radius&&p.invincible<=0){
+        this.damage(e.damage);const n=normalize(p.x-e.x,p.y-e.y);e.x-=n.x*45;e.y-=n.y*45;
+        if(this.dead)break;
       }
     }
+    for(const b of this.hostile){
+      const ox=b.x,oy=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+      if(segmentHit(ox,oy,b.x,b.y,p,p.radius+b.radius)){this.damage(b.damage);b.life=0;}
+    }
+    this.hostile=this.hostile.filter(b=>b.life>0);
+    this.hazardTimer-=dt;
+    if(this.wave>=3&&this.hazardTimer<=0){
+      const a=this.random()*Math.PI*2,r=100+this.random()*160;
+      this.hazards.push({x:p.x+Math.cos(a)*r,y:p.y+Math.sin(a)*r,radius:66,age:0});this.hazardTimer=13;
+      this.events.push({type:'hazard'});
+    }
+    for(const h of this.hazards){h.age+=dt;if(h.age>=1.8&&h.age<2.7&&distance(p,h)<h.radius+p.radius)this.damage(14);}
+    this.hazards=this.hazards.filter(h=>h.age<3.2);
+    this.trail.push({x:p.x,y:p.y,life:.28});this.trail=this.trail.filter(t=>(t.life-=dt)>0);
+    this.rings=this.rings.filter(r=>(r.life-=dt)>0);
     if (!this.dead) for (const item of this.pickups) {
       item.life -= dt; const d = distance(p, item);
       if (d < 145) { const n = normalize(p.x - item.x, p.y - item.y); item.x += n.x * 360 * dt; item.y += n.y * 360 * dt; }
