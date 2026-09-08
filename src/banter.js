@@ -1,4 +1,6 @@
-const HITS=['خاک تو سرت','ریدی','نرینی !','اسکل، جاخالی بده!' ];
+const HITS=['خاک تو سرت','ریدی','نرینی !','اسکل، جاخالی بده!','آب قطعه داداش','زاارت!','سیشتیر!','شومبول! جاخالی بده!','فرمون دست کیه؟','اومدی کتک بخوری؟' ];
+export const LEVEL_LINES=['زنده موندی هنر کردی؟','تهش که میمیری','فعلاً قسر در رفتی!','یه چیزی بردار، زرنگ!','این همه دویدی واسه همین؟','لول گرفتی، جوگیر نشو!','دشمنا منتظرتن داداش!'];
+export function levelLine(previous,random=Math.random){const pool=LEVEL_LINES.filter(x=>x!==previous);return pool[Math.floor(random()*pool.length)];}
 export class Banter {
  constructor(){this.layer=document.createElement('div');this.layer.id='banter';this.layer.setAttribute('aria-hidden','true');document.getElementById('arena').append(this.layer);this.enabled=true;}
  clear(){this.layer.replaceChildren();}

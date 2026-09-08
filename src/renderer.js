@@ -52,6 +52,14 @@ export class Renderer {
       c.shadowColor = e.color; c.shadowBlur = 10;
       this.polygon(e.x, e.y, e.radius, e.sides, angle, e.hit ? '#ffffff' : e.color + '26', e.color);
       c.shadowBlur = 0; this.polygon(e.x, e.y, e.radius * .35, e.sides, angle, e.color, e.color);
+      c.save();c.translate(e.x,e.y);c.rotate(angle);c.strokeStyle=e.color;c.lineWidth=2;
+      if(e.type==='orbiter'){c.beginPath();c.ellipse(0,0,e.radius*1.4,e.radius*.6,ambient*1.5,0,Math.PI*2);c.stroke();}
+      else if(e.type==='hunter'){for(const sign of [-1,1]){c.beginPath();c.moveTo(-18,sign*13);c.lineTo(8,sign*6);c.lineTo(-8,sign*3);c.stroke();}}
+      else if(e.type==='bomber'){c.strokeRect(-12,-12,24,24);c.beginPath();c.arc(0,0,7+Math.sin(ambient*5)*2,0,Math.PI*2);c.stroke();}
+      else if(e.type==='tank'){c.fillStyle=e.color;for(const y of [-19,15])c.fillRect(-15,y,30,4);}
+      else if(e.type==='gunner'){c.fillStyle=e.color;c.fillRect(3,-4,23,8);}
+      else if(e.type==='weaver'){c.beginPath();c.moveTo(-18,-10);c.lineTo(-25,0);c.lineTo(-18,10);c.stroke();}
+      c.restore();
       if (e.hp < e.maxHp) { c.fillStyle = '#ffffff20'; c.fillRect(e.x - 12, e.y - e.radius - 8, 24, 2); c.fillStyle = e.color; c.fillRect(e.x - 12, e.y - e.radius - 8, 24 * e.hp / e.maxHp, 2); }
     }
     c.lineCap = 'round';

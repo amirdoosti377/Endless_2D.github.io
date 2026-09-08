@@ -11,7 +11,7 @@ export class World {
     this.player = { x: 0, y: 0, radius: CONFIG.playerRadius, hp: 100, invincible: 0, angle: -Math.PI / 2 };
     this.hostile = []; this.rings = []; this.trail = []; this.hazards = []; this.hazardTimer = 14; this.enemies = []; this.bullets = []; this.pickups = []; this.particles = []; this.events = [];
     this.time = 0; this.wave = 1; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.nextXP = 8;
-    this.spawnTimer = .7; this.shotTimer = 0; this.dead = false; this.shake = 0;
+    this.spawnSectors=[]; this.spawnTimer = .7; this.shotTimer = 0; this.dead = false; this.shake = 0;
   }
   burst(x, y, color, count = 10) {
     for (let i = 0; i < count && this.particles.length < CONFIG.maxParticles; i++) {
@@ -22,13 +22,22 @@ export class World {
   spawn(view) {
     if (this.enemies.length >= CONFIG.maxEnemies) return;
     const roll = this.random();
-    const pool = this.wave >= 4 ? ['scout','runner','weaver','charger','gunner','tank'] : this.wave >= 3 ? ['scout','runner','weaver','charger','tank'] : this.wave >= 2 ? ['scout','runner','weaver'] : ['scout','scout','runner'];
+    const pool = this.wave >= 5 ? ['scout','runner','weaver','charger','gunner','tank','orbiter','hunter','bomber'] : this.wave >= 4 ? ['scout','runner','weaver','charger','gunner','tank'] : this.wave >= 3 ? ['scout','runner','weaver','charger','tank'] : this.wave >= 2 ? ['scout','runner','weaver'] : ['scout','scout','runner'];
     const type = pool[Math.min(pool.length-1,Math.floor(roll*pool.length))];
-    const spec = ENEMIES[type], a = this.random() * Math.PI * 2;
-    const radius = Math.hypot(view.width / 2, view.height / 2) + 70;
+    const spec = ENEMIES[type];
+    // Sixteen perimeter sectors, shuffled into cycles; keep arrivals offscreen.
+    this.spawnSectors ??= [];
+    if(!this.spawnSectors.length){
+      this.spawnSectors=Array.from({length:16},(_,i)=>i);
+      for(let i=15;i>0;i--){const j=Math.floor(this.random()*(i+1));[this.spawnSectors[i],this.spawnSectors[j]]=[this.spawnSectors[j],this.spawnSectors[i]];}
+    }
+    const sector=this.spawnSectors.pop(),side=Math.floor(sector/4),t=((sector%4)+this.random())/4;
+    const hw=view.width/2+100,hh=view.height/2+100;
+    const sx=side===1?hw:side===3?-hw:(t*2-1)*hw;
+    const sy=side===0?-hh:side===2?hh:(t*2-1)*hh;
     const elite=this.wave>=5&&this.random()<.14;
     const hp = (spec.hp + Math.floor((this.wave - 1) * .65))*(elite?2:1);
-    this.enemies.push({ ...spec, elite, damage:spec.damage+(elite?5:0), score:spec.score*(elite?2:1), type, x: this.player.x + Math.cos(a) * radius, y: this.player.y + Math.sin(a) * radius, hp, maxHp: hp, hit: 0, seed: this.random() * 10 });
+    this.enemies.push({ ...spec, elite, damage:spec.damage+(elite?5:0), score:spec.score*(elite?2:1), type, x: this.player.x + sx, y: this.player.y + sy, hp, maxHp: hp, hit: 0, seed: this.random() * 10 });
   }
   gainXP(amount){
     this.xp+=amount;
@@ -81,7 +90,7 @@ export class World {
         e.hp -= b.damage; e.hit = .12; b.life = 0; this.burst(b.x, b.y, e.color, 4);
         if (e.hp <= 0) {
           this.score += e.score * this.wave; this.kills++; this.burst(e.x, e.y, e.color, 16);
-          this.events.push({ type: 'kill' });
+          this.events.push({ type: 'kill', size:e.radius });
           if(e.type==='boss'){this.events.push({type:'bossDefeated'});this.reliefUntil=this.time+8;this.hostile=[];this.nextBoss=this.time+100;}
           this.rings.push({x:e.x,y:e.y,radius:e.radius,color:e.color,life:.45});if(this.rings.length>45)this.rings.shift();
           this.pickups.push({ x: e.x, y: e.y, type: e.type!=='boss' && this.random() < .09 ? 'health' : 'xp', value: e.xp, life: 35 });

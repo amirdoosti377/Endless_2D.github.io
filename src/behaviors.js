@@ -4,6 +4,18 @@ export function moveEnemy(e, world, dt) {
   const p = world.player, n = normalize(p.x-e.x,p.y-e.y), d = distance(p,e);
   let vx=n.x, vy=n.y, speed=e.speed*Math.min(1.65,1+world.wave*.025);
   e.cooldown = (e.cooldown ?? 1.8) - dt;
+  if(e.type==='orbiter') {
+    const side=d>260?.35:d<120?0:1.3;
+    const v=normalize(n.x-n.y*side,n.y+n.x*side);vx=v.x;vy=v.y;
+  }
+  if(e.type==='hunter') {
+    const lead=normalize(p.x+(p.x-(p.px??p.x))/Math.max(dt,.001)*.45-e.x,p.y+(p.y-(p.py??p.y))/Math.max(dt,.001)*.45-e.y);
+    vx=lead.x;vy=lead.y;
+  }
+  if(e.type==='bomber'&&e.cooldown<=0&&d<360){
+    if(world.hazards.length<12){world.hazards.push({x:p.x,y:p.y,radius:48,age:0});world.events.push({type:'hazard'});}
+    e.cooldown=4.5;
+  }
   if(e.type==='weaver') { const side=Math.sin(world.time*4+e.seed)*.8; const v=normalize(n.x-n.y*side,n.y+n.x*side); vx=v.x;vy=v.y; }
   if(e.type==='charger') {
     if(e.mode==='dash') { vx=e.dx;vy=e.dy;speed=390;e.phase-=dt;if(e.phase<=0){e.mode='chase';e.cooldown=2.8;} }

@@ -1,5 +1,5 @@
 import { RunSave } from './save.js';
-import { Banter } from './banter.js';
+import { Banter, levelLine } from './banter.js';
 import { setupPWA } from './pwa.js';
 import { ABILITIES } from './abilities.js';
 import { World } from './world.js';
@@ -29,10 +29,11 @@ function pause() {
   if (state === 'paused') { state = 'playing'; $('overlay').hidden = true; $('pause').textContent = 'Ⅱ'; $('pause').setAttribute('aria-label', 'توقف بازی'); accumulator = 0; return; }
   state = 'paused'; input.clear();saveRun(); $('overlay').hidden = false; $('panel-tag').textContent = 'یه نفس بگیر'; $('panel-title').textContent = 'وایسا ببینم!'; $('panel-copy').textContent = 'عجله نکن؛ همه همون‌جا منتظرتن.'; $('results').hidden = true; $('play').textContent = 'بزن بریم، ادامه بده'; $('pause').textContent = '▶'; $('pause').setAttribute('aria-label', 'ادامهٔ بازی');
 }
+let lastLevelLine='';
 function showChoices(){
   if(world.dead)return;
-  state='upgrade';input.clear();saveRun();accumulator=0;$('pause').disabled=true;$('overlay').hidden=false;$('play').hidden=true;$('results').hidden=true;
-  $('panel-tag').textContent='لول رفت بالا · یکی رو بردار';$('panel-title').textContent='چی برمی‌داری؟';$('panel-copy').textContent='یکی رو بردار؛ تا آخر این دور مال خودته. فعلاً بازی وایساده.';
+  state='upgrade';banter.clear();input.clear();saveRun();accumulator=0;$('pause').disabled=true;$('overlay').hidden=false;$('play').hidden=true;$('results').hidden=true;
+  $('panel-tag').textContent='لول رفت بالا · یکی رو بردار';lastLevelLine=levelLine(lastLevelLine);$('panel-title').textContent=banter.enabled?lastLevelLine:'چی برمی‌داری؟';$('panel-copy').textContent='یکی رو بردار؛ تا آخر این دور مال خودته. فعلاً بازی وایساده.';
   const options=$('ability-options');options.hidden=false;options.replaceChildren();
   world.offers.forEach((id,index)=>{
     const a=ABILITIES.find(a=>a.id===id),button=document.createElement('button');button.className='ability-card';
@@ -84,7 +85,7 @@ function frame(now) {
     while (accumulator >= CONFIG.step && state === 'playing') {
       world.update(CONFIG.step, input.vector(), renderer); accumulator -= CONFIG.step;
       for (const event of world.events.splice(0)) {
-        sound.play(event.type);
+        sound.play(event.type,event.size);
         if (event.type === 'hazard') notify('اون جای زرده خطرناکه؛ برو کنار!');
         if (event.type === 'wave') notify(`موج ${String(event.value).padStart(2, '0')} · شلوغ شد، حواست باشه!`);
         if (event.type === 'level' && state==='playing') showChoices();

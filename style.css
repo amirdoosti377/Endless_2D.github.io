@@ -15,3 +15,33 @@
 .banter-pop{white-space:normal;overflow-wrap:anywhere;line-height:1.6}
 
 html[lang="fa"] body{font-family:Tahoma,Arial,sans-serif}html[lang="fa"] h1{letter-spacing:0;line-height:1.45;font-size:clamp(32px,5vw,60px)}html[lang="fa"] .eyebrow,html[lang="fa"] .brand,html[lang="fa"] .record,html[lang="fa"] footer,html[lang="fa"] #notice{letter-spacing:0}html[lang="fa"] .ability-card{text-align:right}html[lang="fa"] .primary{letter-spacing:0}html[lang="fa"] .panel{padding:16px}html[lang="fa"] .stats strong,html[lang="fa"] #health,html[lang="fa"] kbd{direction:ltr;unicode-bidi:isolate}#save-status{color:#ffc18c}html[lang="fa"] .bar-label,html[lang="fa"] #build-summary{font-family:Tahoma,Arial,sans-serif}html[lang="fa"] .controls{line-height:2}@media(max-width:650px){html[lang="fa"] .stats{gap:12px}html[lang="fa"] .brand{font-size:15px}html[lang="fa"] .actions button{letter-spacing:0}}
+
+/* Touch-first layout, including narrow phones and short landscape screens. */
+#arena{min-height:0;height:100vh;height:100dvh}
+.overlay{z-index:8;display:block;overflow:auto;overscroll-behavior:contain;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background-color:#080d18c9}
+.overlay .panel{margin:auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
+.actions button,.app-tools button,.app-tools label{min-height:44px;min-width:44px;touch-action:manipulation}
+.app-tools label{display:flex;align-items:center;gap:8px}.app-tools input{width:20px;height:20px}
+.ability-card{min-height:92px;touch-action:manipulation}.ability-card:active{background:#285244;transform:scale(.98)}
+#ability-options{flex-shrink:0}#joystick{z-index:5}#notice{padding:0 18px;font-size:13px}
+@media(pointer:coarse){.controls>span:not(.touch-hint){display:none}footer{display:none}#build-summary{display:none}.ability-card:hover{transform:none}}
+@media(max-width:650px){
+ .hud{display:grid;grid-template-columns:1fr auto;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));gap:6px}
+ .identity{display:none}.actions{grid-column:2;grid-row:1}.stats{grid-column:1;grid-row:1;width:auto;justify-content:space-between;order:0;gap:8px!important}
+ .stats strong{font-size:16px}.stats .eyebrow{font-size:9px}.actions button{font-size:10px;padding:8px}.actions{gap:5px}
+ .vitals{top:calc(62px + env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));width:calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right))}
+ .track{margin-top:5px}.xp-label{margin-top:7px}
+ #boss-hud{top:calc(123px + env(safe-area-inset-top));width:60%;font-size:11px}#notice{top:calc(160px + env(safe-area-inset-top))}
+ html[lang="fa"] .panel{width:min(510px,100%);padding:10px 4px}
+ html[lang="fa"] .overlay h1{font-size:30px!important;margin:8px 0;line-height:1.5}
+ .panel p{margin:8px 0 14px;font-size:14px}.ability-card{padding:13px;gap:6px}.ability-card small{letter-spacing:0}
+ .banter-pop{font-size:17px;max-width:40vw}.record{margin-top:12px;padding-top:10px}
+}
+@media(max-height:500px) and (orientation:landscape){
+ .identity{display:none}.hud{padding:6px max(12px,env(safe-area-inset-right)) 6px max(12px,env(safe-area-inset-left))}
+ .vitals{top:58px;width:180px;left:max(12px,env(safe-area-inset-left))}#boss-hud{top:58px;width:32%;font-size:10px}#notice{top:105px;font-size:11px}
+ .overlay:has(#ability-options:not([hidden])) .panel{width:min(900px,100%)}
+ #ability-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ability-card{min-width:0}
+ html[lang="fa"] .overlay h1{font-size:24px!important;margin:4px 0}.panel p{margin:4px 0 8px!important}
+ footer,#build-summary{display:none}
+}
